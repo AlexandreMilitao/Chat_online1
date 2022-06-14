@@ -1,19 +1,11 @@
 import 'dart:async';
 
+import 'package:chat_online/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-  FirebaseFirestore.instance.collection("mensagens").snapshots().listen((dado) {
-    dado.docs.forEach((d) {
-      print(d.data);
-    });
-  });
-
   runApp(const MyApp());
 }
 
@@ -22,11 +14,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter Demo',
-      home: Scaffold(
-        backgroundColor: Colors.white,
-      ),
+    return MaterialApp(
+      title: 'Chat Flutter',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          primarySwatch: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.blue)),
+      home: ChatScreen(),
     );
   }
 }
