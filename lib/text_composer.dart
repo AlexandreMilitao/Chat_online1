@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -31,14 +32,16 @@ class _TextComposerState extends State<TextComposer> {
       child: Row(
         children: <Widget>[
           IconButton(
-            onPressed: () async {
-              final File imgFile =
-                  (await ImagePicker.pickImage(source: ImageSource.camera))
-                      as File;
-              if (imgFile == null) return;
-              widget.sendMessage(imgFile: imgFile);
-            },
             icon: Icon(Icons.photo_camera),
+            onPressed: () async {
+              final File? imgFile = await ImagePicker()
+                  .pickImage(source: ImageSource.camera) as File?;
+              if (imgFile == null) {
+                return;
+              } else {
+                widget.sendMessage(imgFile: imgFile);
+              }
+            },
           ),
           Expanded(
             child: TextField(
