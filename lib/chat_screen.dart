@@ -16,15 +16,25 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage({String? text, File? imgFile}) async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
+    Map<String, Object> data = {};
+
     if (imgFile != null) {
       UploadTask task = FirebaseStorage.instance
           .ref()
           .child(DateTime.now().millisecondsSinceEpoch.toString())
           .putFile(imgFile);
+      await task;
+      TaskSnapshot taskSnapshot = await task;
+      String url = await taskSnapshot.ref.getDownloadURL();
+      imgFile = File(url);
+      data['imgUrl'] = url;
     }
-    FirebaseFirestore.instance.collection('messages').add({'text': text});
+
+    if (text != null) {
+      data['text'] = text;
+    }
+
+    FirebaseFirestore.instance.collection('messages').add(data);
   }
 
   @override
@@ -34,8 +44,39 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Text("Olá"),
         elevation: 0,
       ),
-      body: TextComposer(
-        sendMessage: _sendMessage,
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('messages').snapshots(),
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  default:
+                    List<DocumentSnapshot> documents =
+                        snapshot.data!.docs.reversed.toList();
+                    return ListView.builder(
+                      itemCount: documents.length,
+                      reverse: true,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(documents[index].get("text")),
+                        );
+                      },
+                    );
+                }
+              },
+            ),
+          ),
+          TextComposer(
+            sendMessage: _sendMessage,
+          ),
+        ],
       ),
     );
   }

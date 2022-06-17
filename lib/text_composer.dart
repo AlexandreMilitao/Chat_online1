@@ -13,6 +13,8 @@ class TextComposer extends StatefulWidget {
 }
 
 class _TextComposerState extends State<TextComposer> {
+  final TextEditingController _controller = TextEditingController();
+
   bool _isComposing = false;
 
   void _reset() {
@@ -22,8 +24,6 @@ class _TextComposerState extends State<TextComposer> {
     });
   }
 
-  final TextEditingController _controller = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,14 +31,17 @@ class _TextComposerState extends State<TextComposer> {
       child: Row(
         children: <Widget>[
           IconButton(
-            onPressed: () async {
-              final File imgFile =
-                  (await ImagePicker.pickImage(source: ImageSource.camera))
-                      as File;
-              if (imgFile == null) return;
-              widget.sendMessage(imgFile: imgFile);
-            },
             icon: Icon(Icons.photo_camera),
+            onPressed: () async {
+              PickedFile? imgFile = await ImagePicker.platform
+                  .pickImage(source: ImageSource.camera);
+              if (imgFile == null) {
+                return;
+              } else {
+                File storedImgae = File(imgFile.path);
+                widget.sendMessage(imgFile: storedImgae);
+              }
+            },
           ),
           Expanded(
             child: TextField(
