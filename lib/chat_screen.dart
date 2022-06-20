@@ -162,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          _isLoading ? LinearProgressIndicator() : Container(),
+          _isLoading ? const LinearProgressIndicator() : Container(),
           TextComposer(
             sendMessage: _sendMessage,
           ),
